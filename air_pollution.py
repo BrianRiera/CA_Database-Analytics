@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import xml.etree.ElementTree as ET
 import pymongo
+import pandas as pd
 
 url = 'https://en.wikipedia.org/wiki/List_of_countries_by_air_pollution'
 page = requests.get(url)
@@ -42,3 +43,21 @@ with open('air_pollution.xml', 'rb') as xml_f:
     xml_data = xml_f.read()
     document = {'air_pollution': xml_data}
     collection.insert_one(document)
+
+document = collection.find_one()
+
+xml_data = document['air_pollution']
+
+root = ET.fromstring(xml_data)
+
+headings = [heading.text for heading in root.findall('.//headings/heading')]
+
+data_list = []
+for row in root.findall('.//rows/row'):
+    row_data = [cell.text for cell in row.findall('.//cell')]
+    data_list.append(dict(zip(headings, row_data)))
+
+df = pd.DataFrame(data_list)
+df
+
+#Average air pollution by year
