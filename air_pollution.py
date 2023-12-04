@@ -7,7 +7,6 @@ import pandas as pd
 url = 'https://en.wikipedia.org/wiki/List_of_countries_by_air_pollution'
 page = requests.get(url)
 soup = BeautifulSoup(page.text, 'html.parser')
-
 tables = soup.find_all('table', class_='wikitable sortable')
 air_pollution_table = tables[0]
 root = ET.Element("table_data")
