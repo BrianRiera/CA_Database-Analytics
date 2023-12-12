@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[98]:
+
 
 from bs4 import BeautifulSoup
 import requests
@@ -15,9 +16,13 @@ import matplotlib.pyplot as plt
 import psycopg2
 
 
+# In[99]:
+
+
 # Commit history is in separate ipynb files 
 
 
+# In[101]:
 
 
 ######################### co2 xml Datasets ########################################
@@ -25,74 +30,74 @@ import psycopg2
 ####################################################################################
 
 
-# In[2]:
+# In[159]:
 
 
-client = pymongo.MongoClient('192.168.56.30', 27017)
-db = client.climate
-collection = db.co2_emissions_collection
+co2_client = pymongo.MongoClient('192.168.56.30', 27017)
+co2_db = co2_client.climate
+co2_collection = co2_db.co2_emissions_collection
 
 # Read XML as binary data
-with open('co2_emissions.xml', 'rb') as xml_file:
-    xml_data = xml_file.read()
+with open('co2_emissions.xml', 'rb') as co2_xml_file:
+    co2_xml_data = co2_xml_file.read()
 
 # Insert into MongoDB
-document = {'co2_data': xml_data}
-collection.insert_one(document)
+co2_document = {'co2_data': co2_xml_data}
+co2_collection.insert_one(co2_document)
 
 
-# In[3]:
+# In[160]:
 
 
-document = collection.find_one()
-xml_data = document['co2_data']
+co2_document = co2_collection.find_one()
+co2_xml_data = co2_document['co2_data']
 # Parse and create element tree 
-root = ET.fromstring(xml_data)
+co2_root = ET.fromstring(co2_xml_data)
 
 
-# In[4]:
+# In[161]:
 
 
-record_elements = root.findall('.//record')
+co2_record_elements = co2_root.findall('.//record')
 # Find first 'record' element or assign none if nothing found
-first_record = record_elements[0] if record_elements else None
+co2_first_record = co2_record_elements[0] if co2_record_elements else None
 
 
 # Extract unique column names from the first record 'field' element
-headings = [field.attrib['name'] for field in first_record.findall('.//field')] if first_record else []
+co2_headings = [field.attrib['name'] for field in co2_first_record.findall('.//field')] if co2_first_record else []
 
-data = []
+co2_data = []
 
 # For loop to iterate through each 'record' element and extract the data from 'field'
-for record in record_elements:
+for record in co2_record_elements:
     #Extract text from 'field' and create row of data
     row_data = [field.text for field in record.findall('.//field')]
-    data.append(row_data)
+    co2_data.append(row_data)
 
-co2_df = pd.DataFrame(data, columns=headings)
+co2_df = pd.DataFrame(co2_data, columns=co2_headings)
 co2_df
 
 
-# In[5]:
+# In[162]:
 
 
 co2_df.info()
 
 
-# In[6]:
+# In[163]:
 
 
 co2_df.drop(["Item"], axis=1, inplace=True)
 co2_df.rename(columns={'Value': 'C02_Emissions_MTPC'}, inplace=True)
 
 
-# In[7]:
+# In[164]:
 
 
 co2_df.dtypes
 
 
-# In[8]:
+# In[165]:
 
 
 # Renaming columns for data consistency
@@ -117,51 +122,51 @@ replacement_dict = {
 co2_df['Country or Area'] = co2_df['Country or Area'].replace(replacement_dict)
 
 
-# In[9]:
+# In[166]:
 
 
 co2_df['Year'] = co2_df['Year'].astype(int)
 co2_df['C02_Emissions_MTPC'] = co2_df['C02_Emissions_MTPC'].apply(lambda x: round(pd.to_numeric(x), 4) if not pd.isna(x) else None)
 
 
-# In[10]:
+# In[167]:
 
 
 co2_df = co2_df[(co2_df['Year'] >= 1990) & (co2_df['Year'] <= 2020)]
 
 
-# In[11]:
+# In[168]:
 
 
 co2_df[co2_df.isnull().any(axis=1)]
 
 
-# In[12]:
+# In[169]:
 
 
 co2_df.dropna(inplace=True)
 
 
-# In[13]:
+# In[170]:
 
 
 co2_output = co2_df
 
 
-# In[14]:
+# In[171]:
 
 
 co2_output.reset_index()
 
 
-# In[15]:
+# In[172]:
 
 
 # Am going to use this table for merging with other tables due to table structure
 try:
-    engine = create_engine('postgresql://dap:dap@192.168.56.30:5432/climate')
+    co2_engine = create_engine('postgresql://dap:dap@192.168.56.30:5432/climate')
 
-    co2_output.to_sql('co2_emissions_output', engine, index=False, if_exists='replace')
+    co2_output.to_sql('co2_emissions_output', co2_engine, index=False, if_exists='replace')
 
     print('DataFrame uploaded to PostgreSQL successfully.')
 
@@ -169,7 +174,7 @@ except Exception as e:
     print('Error:', e)
 
 
-# In[16]:
+# In[173]:
 
 
 co2_df= co2_df.pivot(index='Country or Area', columns='Year', values='C02_Emissions_MTPC')
@@ -178,27 +183,27 @@ co2_df.columns.name = None
 co2_df
 
 
-# In[17]:
+# In[174]:
 
 
 print(co2_df[co2_df.isnull().any(axis=1)])
 
 
-# In[18]:
+# In[175]:
 
 
 # Filling with adjacent value due to temporal nature of data
 co2_df[1990] = co2_df[1990].combine_first(co2_df[1991])
 
 
-# In[19]:
+# In[176]:
 
 
 # Upload to postgres
 try:
-    engine = create_engine('postgresql://dap:dap@192.168.56.30:5432/climate')
+    co2_engine = create_engine('postgresql://dap:dap@192.168.56.30:5432/climate')
 
-    co2_df.to_sql('co2_emissions', engine, index=False, if_exists='replace')
+    co2_df.to_sql('co2_emissions', co2_engine, index=False, if_exists='replace')
 
     print('DataFrame uploaded to PostgreSQL successfully.')
 
@@ -206,7 +211,7 @@ except Exception as e:
     print('Error:', e)
 
 
-# In[20]:
+# In[177]:
 
 
 ######################### Exploring co2 Dataset ####################################
@@ -214,7 +219,7 @@ except Exception as e:
 ####################################################################################
 
 
-# In[21]:
+# In[178]:
 
 
 eu_27_list = [
@@ -229,7 +234,7 @@ total_co2_eu_df = co2_df[co2_df['Country or Area'].isin(eu_27_list)]
 total_co2_eu_df = total_co2_eu_df.reset_index(drop=True)
 
 
-# In[22]:
+# In[179]:
 
 
 # Selecting year columns 
@@ -238,7 +243,7 @@ co2_years = total_co2_eu_df.drop(columns=['Country or Area'])
 co2_years.describe().round(4)
 
 
-# In[23]:
+# In[180]:
 
 
 #Checking for outliers 
@@ -258,7 +263,7 @@ co2_outliers_countries = total_co2_eu_df[['Country or Area']][co2_outliers.any(a
 co2_outliers_countries
 
 
-# In[24]:
+# In[181]:
 
 
 # Mean emission levels for each country
@@ -273,7 +278,7 @@ highest_emissions = mean_emissions_df.sort_values(by='Mean_emissions', ascending
 highest_emissions.head(10)
 
 
-# In[25]:
+# In[182]:
 
 
 # Sort ascending order 
@@ -282,7 +287,7 @@ lowest_emissions = mean_emissions_df.sort_values(by='Mean_emissions')
 lowest_emissions.head(10)
 
 
-# In[26]:
+# In[183]:
 
 
 # Kernel density plot for each year
@@ -292,7 +297,7 @@ plt.xlabel('co2 emissions Metric Tonnes Per Capita(MPTC)')
 plt.show()
 
 
-# In[27]:
+# In[184]:
 
 
 ######################### Air Pollution Datasets ###################################
@@ -300,62 +305,56 @@ plt.show()
 ####################################################################################
 
 
-# In[28]:
+# In[185]:
 
 
 # Connecting to MongoDB
 client = pymongo.MongoClient('192.168.56.30', 27017)
-db = client.climate
-collection = db.air_pollution_collection_1965_2019
+air_db = client.climate
+air_collection = air_db.air_pollution_collection_1965_2019
 
 # Reading in the xml file as binary 
-with open('air_pollution_1965_2019.xml', 'rb') as xml_file:
-    xml_data = xml_file.read()
+with open('air_pollution_1965_2019.xml', 'rb') as air_xml_file:
+    air_xml_data = air_xml_file.read()
 
 # Inserting into MongoDB
-document = {'air_pollution_1965_2019': xml_data}
-collection.insert_one(document)
+air_document = {'air_pollution_1965_2019': air_xml_data}
+air_collection.insert_one(air_document)
 
 
-# In[29]:
+# In[186]:
 
 
 # Retrieving File from collection in MongoDB
-document = collection.find_one()
-xml_data = document['air_pollution_1965_2019']
+air_document = air_collection.find_one()
+air_xml_data = air_document['air_pollution_1965_2019']
 # Parse and create element tree 
-root = ET.fromstring(xml_data)
+air_root = ET.fromstring(air_xml_data)
 
 
-# In[30]:
+# In[187]:
 
 
-record_elements = root.findall('.//record')
+air_record_elements = air_root.findall('.//record')
 # Find first 'record' element or assign none if nothing found
-first_record = record_elements[0] if record_elements else None
+air_first_record = air_record_elements[0] if air_record_elements else None
 
 # Extract unique column names from the first record 'field' element
-headings = [field.attrib['name'] for field in first_record.findall('.//field')] if first_record else []
+air_headings = [field.attrib['name'] for field in air_first_record.findall('.//field')] if air_first_record else []
 
-data = []
+air_data = []
 
 # For loop to iterate through each 'record' element and extract the data from 'field'
-for record in record_elements:
+for record in air_record_elements:
     #Extract text from 'field' and create row of data
     row_data = [field.text for field in record.findall('.//field')]
-    data.append(row_data)
+    air_data.append(row_data)
 
-air_poll_df_1965_2019 = pd.DataFrame(data, columns=headings)
+air_poll_df_1965_2019 = pd.DataFrame(air_data, columns=air_headings)
 air_poll_df_1965_2019
 
 
-# In[ ]:
-
-
-
-
-
-# In[31]:
+# In[188]:
 
 
 # Cleaning dataframe, dropping column, converting to numeric and rounding numbers
@@ -364,13 +363,13 @@ air_poll_df_1965_2019['Value'] = pd.to_numeric(air_poll_df_1965_2019['Value'])
 air_poll_df_1965_2019['Value'] = air_poll_df_1965_2019['Value'].apply(lambda x: round(x, 2) if not pd.isna(x) else None)
 
 
-# In[32]:
+# In[189]:
 
 
 air_poll_df_1965_2019.dtypes
 
 
-# In[33]:
+# In[190]:
 
 
 # Converting year to integer and creating new Dataframe on years 2010-2019
@@ -378,7 +377,7 @@ air_poll_df_1965_2019['Year'] = air_poll_df_1965_2019['Year'].astype(int)
 air_poll_2010_2019 = air_poll_df_1965_2019[(air_poll_df_1965_2019['Year'] >= 2010) & (air_poll_df_1965_2019['Year'] <= 2019)]
 
 
-# In[34]:
+# In[191]:
 
 
 print(air_poll_2010_2019.columns)
@@ -387,7 +386,7 @@ print(air_poll_2010_2019.columns)
 # air_poll_2010_2019
 
 
-# In[35]:
+# In[192]:
 
 
 #Transposing Dataframe
@@ -399,7 +398,7 @@ air_poll_10_19.columns.name = None
 air_poll_10_19
 
 
-# In[36]:
+# In[193]:
 
 
 ######################### Webscraping for 2020 - 2022 ##############################
@@ -407,7 +406,7 @@ air_poll_10_19
 ####################################################################################
 
 
-# In[37]:
+# In[194]:
 
 
 url = 'https://en.wikipedia.org/wiki/List_of_countries_by_air_pollution'
@@ -418,7 +417,7 @@ air_pollution_table = tables[0]
 root = ET.Element("table_data")
 
 
-# In[38]:
+# In[195]:
 
 
 # Extract all 'th' table header elements 
@@ -434,7 +433,7 @@ for heading in headings:
     heading_element.text = heading_text
 
 
-# In[39]:
+# In[196]:
 
 
 # Extract 'tr' (table row) elements and skip headings
@@ -454,7 +453,7 @@ for row in rows:
         cell_element.text = cell_text
 
 
-# In[40]:
+# In[197]:
 
 
 tree = ET.ElementTree(root)
@@ -463,7 +462,7 @@ with open('air_pollution.xml', "wb") as xml_f:
     tree.write(xml_f, xml_declaration=True)
 
 
-# In[41]:
+# In[198]:
 
 
 # Connect to MongoDB
@@ -480,7 +479,7 @@ with open('air_pollution.xml', 'rb') as xml_f:
     collection.insert_one(document)
 
 
-# In[42]:
+# In[199]:
 
 
 # Retrieve document from MongoDB
@@ -493,7 +492,7 @@ root = ET.fromstring(xml_data)
 headings = [heading.text for heading in root.findall('.//headings/heading')]
 
 
-# In[43]:
+# In[200]:
 
 
 data = []
@@ -507,14 +506,14 @@ air_poll_19_22 = pd.DataFrame(data, columns=headings)
 air_poll_19_22
 
 
-# In[44]:
+# In[201]:
 
 
 # Renaming columns so they aren't lost during dataframe merge 
 air_poll_10_19['Country or Area'] = air_poll_10_19['Country or Area'].replace(replacement_dict)
 
 
-# In[45]:
+# In[202]:
 
 
 # Merge the dataframes together adding 2020 - 2022 onto larger dataframe 
@@ -525,19 +524,19 @@ air_poll_df = air_poll_df.drop(columns='Country/Region')
 air_poll_df
 
 
-# In[46]:
+# In[203]:
 
 
 air_poll_df.dtypes
 
 
-# In[47]:
+# In[204]:
 
 
 print(air_poll_df.columns)
 
 
-# In[48]:
+# In[205]:
 
 
 # Rename columns, improved control flow with variables
@@ -557,14 +556,14 @@ air_poll_df[2020] = air_poll_df[2020].combine_first(air_poll_df[2019])
 air_poll_df[2021] = air_poll_df[2021].combine_first(air_poll_df[2022])
 
 
-# In[49]:
+# In[206]:
 
 
 # Check for null values in DataFrame
 print(air_poll_df[air_poll_df.isnull().any(axis=1)])
 
 
-# In[50]:
+# In[207]:
 
 
 # Improved control flow with variable and if statement
@@ -578,7 +577,7 @@ else:
     print("No rows with null values found")
 
 
-# In[51]:
+# In[208]:
 
 
 # Upload to postgres
@@ -593,14 +592,14 @@ except Exception as e:
     print('Error:', e)
 
 
-# In[52]:
+# In[209]:
 
 
 air_eu_df = air_poll_df[air_poll_df['Country or Area'].isin(eu_27_list)]
 air_eu_df = air_eu_df.reset_index(drop=True)
 
 
-# In[53]:
+# In[210]:
 
 
 ######################### Exploring Air pollution ##################################
@@ -608,7 +607,7 @@ air_eu_df = air_eu_df.reset_index(drop=True)
 ####################################################################################
 
 
-# In[54]:
+# In[211]:
 
 
 # Selecting year columns 
@@ -616,7 +615,7 @@ air_poll_years = air_eu_df.drop(columns=['Country or Area'])
 air_poll_years.describe().round(4)
 
 
-# In[55]:
+# In[212]:
 
 
 #Checking for outliers 
@@ -636,7 +635,7 @@ outliers_countries = air_eu_df[['Country or Area']][air_outliers.any(axis=1)]
 outliers_countries
 
 
-# In[56]:
+# In[213]:
 
 
 # Mean pollution levels for each country
@@ -651,7 +650,7 @@ highest_pollution = mean_pollution_df.sort_values(by='Mean_Pollution', ascending
 highest_pollution.head(10)
 
 
-# In[57]:
+# In[214]:
 
 
 # Sort ascending order 
@@ -659,7 +658,7 @@ lowest_emissions = mean_pollution_df.sort_values(by='Mean_Pollution')
 lowest_emissions.head(10)
 
 
-# In[58]:
+# In[215]:
 
 
 air_poll_years.hist(bins=20, figsize=(12, 8))
@@ -667,7 +666,7 @@ plt.suptitle('Distribution of Air Pollution PM2.5 Levels (Histogram)')
 plt.show()
 
 
-# In[59]:
+# In[216]:
 
 
 # Kernel density plot for each year
@@ -677,7 +676,7 @@ plt.xlabel('Air Pollution PM2.5 Levels')
 plt.show()
 
 
-# In[60]:
+# In[217]:
 
 
 yearly_average = air_eu_df[list(range(2010, 2023))].mean()
@@ -697,14 +696,14 @@ plt.legend()
 plt.show()
 
 
-# In[62]:
+# In[218]:
 
 
 air_arima_df = air_eu_df.melt(id_vars='Country or Area', var_name='Year', value_name='Air_Pollution')
 air_arima_df = air_arima_df.groupby('Year').mean().reset_index()
 
 
-# In[63]:
+# In[219]:
 
 
 # Insufficient datapoints for arima model, used SMA instead 
@@ -723,7 +722,7 @@ plt.xticks(air_arima_df['Year'])
 plt.show()
 
 
-# In[64]:
+# In[220]:
 
 
 # Creating Output table for EU countries
@@ -731,7 +730,7 @@ EV_df = pd.read_csv("IEA Global EV Data 2023.csv")
 ev_eu_df = EV_df.loc[(EV_df['region'] == 'EU27') & (EV_df['category'] == 'Historical') & (EV_df['parameter'] == 'EV sales') & (EV_df['mode'] == 'Cars') ].groupby(["year"]).agg(EVSales=('value', 'sum'))
 
 
-# In[65]:
+# In[221]:
 
 
 ev_eu_df.reset_index(inplace=True)
@@ -739,21 +738,21 @@ ev_eu_df['year'] = ev_eu_df['year'].astype(int)
 output_df = pd.merge(air_arima_df, ev_eu_df, left_on='Year', right_on='year', how='left')
 
 
-# In[66]:
+# In[222]:
 
 
 co2_eu_df = co2_df[co2_df['Country or Area'].isin(eu_27_list)]
 co2_eu_df = co2_eu_df.reset_index(drop=True)
 
 
-# In[67]:
+# In[223]:
 
 
 co2_eu_df = co2_eu_df.melt(id_vars='Country or Area', var_name='Year', value_name='Total_co2_emissions_MTPC')
 co2_eu_df = co2_eu_df.groupby('Year').mean().reset_index()
 
 
-# In[68]:
+# In[224]:
 
 
 output_df = output_df.drop(columns='year', errors='ignore')
@@ -761,13 +760,13 @@ co2_eu_df['Year'] = co2_eu_df['Year'].astype(int)
 output_df = pd.merge(output_df, co2_eu_df, on='Year', how='left')
 
 
-# In[69]:
+# In[225]:
 
 
 co2_car_df = pd.read_csv('UNFCCC_v26.csv')
 
 
-# In[70]:
+# In[226]:
 
 
 pollutant = co2_car_df['Pollutant_name'] == 'All greenhouse gases - (CO2 equivalent)'
@@ -778,7 +777,7 @@ country = co2_car_df['Country'] == 'EU-27'
 co2_car_df = co2_car_df[pollutant & sector & country]
 
 
-# In[71]:
+# In[227]:
 
 
 co2_car_df['Year'] = co2_car_df['Year'].astype(int)
@@ -787,66 +786,66 @@ co2_car_df = co2_car_df.sort_values(by='Year')
 co2_car_df = co2_car_df.reset_index(drop=True)
 
 
-# In[72]:
+# In[228]:
 
 
 output_df = pd.merge(output_df, co2_car_df, on='Year', how='left')
 
 
-# In[73]:
+# In[229]:
 
 
 correlation_columns = output_df[['Air_Pollution', 'EVSales', 'Total_co2_emissions_MTPC', 'emissions']]
 correlation_matrix = correlation_columns.corr()
-correlation_matrix
+print(correlation_matrix)
 
 
-# In[74]:
+# In[230]:
 
 
 ######################################### Creating output table for LM #################################################################
 
 
-# In[75]:
+# In[231]:
 
 
 lm_eu_df = pd.read_csv("IEA Global EV Data 2023.csv")
 lm_eu_df = lm_eu_df.loc[(lm_eu_df['region'].isin(eu_27_list)) & (lm_eu_df['category'] == 'Historical') & (lm_eu_df['parameter'] == 'EV sales') & (lm_eu_df['mode'] == 'Cars')]
 
 
-# In[76]:
+# In[232]:
 
 
 lm_eu_df.reset_index(inplace=True)
 lm_eu_df['year'] = lm_eu_df['year'].astype(int)
 
 
-# In[77]:
+# In[233]:
 
 
 lm_eu_df.drop(['index', 'category', 'parameter', 'mode', 'powertrain', 'unit'], axis=1, inplace=True)
 ev_df_1 = lm_eu_df
 
 
-# In[78]:
+# In[234]:
 
 
 lm_air_df = air_eu_df.melt(id_vars='Country or Area', var_name='Year', value_name='Air_Pollution')
 
 
-# In[79]:
+# In[235]:
 
 
 lm_output_df = pd.merge(lm_air_df, ev_df_1, left_on=['Country or Area', 'Year'], right_on=['region', 'year'], how='inner')
 
 
-# In[80]:
+# In[236]:
 
 
 lm_output_df.drop(['region'], axis=1, inplace=True)
 
 
-# In[81]:
+# In[237]:
 
 
 # Multiple values in value column so aggregated by summing the 'value' column and using 'first' for 'Air_Pollution' for each combination of 'Country or Area' and 'Year'
@@ -856,33 +855,33 @@ lm_output_df = lm_output_df.groupby(['Country or Area', 'Year'], as_index=False)
 })
 
 
-# In[82]:
+# In[238]:
 
 
 lm_co2_eu_df = co2_df['Country or Area'].isin(eu_27_list)
 lm_co2_eu_df = co2_df.reset_index(drop=True)
 
 
-# In[83]:
+# In[239]:
 
 
 lm_co2_eu_df = lm_co2_eu_df.melt(id_vars='Country or Area', var_name='Year', value_name='Total_co2_emissions_MTPC')
 
 
-# In[84]:
+# In[240]:
 
 
 lm_co2_eu_df['Year'] = lm_co2_eu_df['Year'].astype(int)
 lm_output_df = pd.merge(lm_output_df, lm_co2_eu_df, on= ['Country or Area', 'Year'], how='inner')
 
 
-# In[85]:
+# In[241]:
 
 
 lm_co2_car_df = pd.read_csv('UNFCCC_v26.csv')
 
 
-# In[86]:
+# In[242]:
 
 
 pollutant = lm_co2_car_df['Pollutant_name'] == 'All greenhouse gases - (CO2 equivalent)'
@@ -891,7 +890,7 @@ country = lm_co2_car_df['Country'].isin(eu_27_list)
 lm_co2_car_df = lm_co2_car_df[pollutant & sector & country]
 
 
-# In[87]:
+# In[243]:
 
 
 # Problems with strings and integers in year column values like (1987 - 1990)
@@ -899,7 +898,7 @@ years_to_keep = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 202
 lm_co2_car_df = lm_co2_car_df[lm_co2_car_df['Year'].isin(years_to_keep)]
 
 
-# In[88]:
+# In[244]:
 
 
 lm_co2_car_df['Year'] = lm_co2_car_df['Year'].astype(int)
@@ -908,13 +907,13 @@ lm_co2_car_df = lm_co2_car_df.sort_values(by='Year')
 lm_co2_car_df = lm_co2_car_df.reset_index(drop=True)
 
 
-# In[89]:
+# In[245]:
 
 
 lm_output_df = pd.merge(lm_output_df,lm_co2_car_df, on='Year', how='inner')
 
 
-# In[90]:
+# In[246]:
 
 
 # Group by 'Country or Area' and 'Year', aggregating 'value' and 'emissions'
@@ -926,13 +925,13 @@ lm_output_df = lm_output_df.groupby(['Country or Area', 'Year'], as_index=False)
 })
 
 
-# In[91]:
+# In[247]:
 
 
 lm_output_df.rename(columns={'value': 'EVSales'}, inplace=True)
 
 
-# In[92]:
+# In[248]:
 
 
 # Change dependent Variable?
@@ -950,7 +949,7 @@ anova_table = anova_lm(results)
 print(anova_table)
 
 
-# In[93]:
+# In[249]:
 
 
 print(results.summary())
