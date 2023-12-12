@@ -22,7 +22,7 @@ def convert_csv_into_json(csvpath, jsonpath):
     array4json = []
       
     #reading the csv file from csv path
-    with (open(csvpath, encoding='utf-8') as csvf): 
+    with open(csvpath, encoding='utf-8') as csvf: 
         csvReader = csv.DictReader(csvf) 
 
         rowcount = 0
