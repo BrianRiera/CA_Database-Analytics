@@ -7,8 +7,32 @@ import psycopg2
 import csv
 import numpy as np
 from statsmodels.tsa.arima.model import ARIMA
+import constants as ct
 
-df = pd.read_csv("IEA Global EV Data 2023.csv")
+def createDB(database):
+    try:
+        dbConnection = psycopg2.connect(
+            user=ct.psql_user,
+            password=ct.psql_password,
+            host=ct.psql_host,
+            port=ct.psql_port,
+            database=ct.psql_masterDb)
+
+        dbConnection.set_isolation_level(0)
+        dbCursor = dbConnection.cursor()
+        dbCursor.execute(f'CREATE DATABASE {database};')
+        dbCursor.close()
+    except (Exception, psycopg2.Error) as dbError:
+        print("Error while connecting to PostgreSQL", dbError)
+    finally:
+        if (dbConnection):
+            dbConnection.close()
+
+createDB(ct.psql_database)
+
+print("Inside ev_sales")
+
+df = pd.read_csv(ct.ev_global_data_csvpath_and_file)
 
 result = df.loc[(df['region'] == 'EU27') & (df['category'] == 'Historical') & (df['parameter'] == 'EV stock') & (df['mode'] == 'Cars') ].groupby(["year"]).agg(EVStock=('value', 'sum'))
 
@@ -46,11 +70,12 @@ readGlobalEVData = 'select count(*) from GLOBAL_EV_DATA;'
 
 try :
     dbConnection = psycopg2.connect(
-        user = "dap",
-        password = "dap",
-        host = "192.168.56.30",
-        port = "5432",
-        database = "climate")
+        user = ct.psql_user,
+        password = ct.psql_password,
+        host = ct.psql_host,
+        port = ct.psql_port,
+        database = ct.psql_database)
+
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     dbCursor.execute("drop table IF EXISTS GLOBAL_EV_DATA;")
@@ -67,16 +92,17 @@ print('Successfully created table GLOBAL_EV_DATA')
 
 try:
     dbConnection = psycopg2.connect(
-                            user = "dap",
-                            password = "dap",
-                            host = "192.168.56.30",
-                            port = "5432",
-                            database = "climate")
+        user = ct.psql_user,
+        password = ct.psql_password,
+        host = ct.psql_host,
+        port = ct.psql_port,
+        database = ct.psql_database)
+
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     insertString = "INSERT INTO GLOBAL_EV_DATA VALUES ('{}'," + "'{}',"*6 + "{})"
 
-    with open('IEA Global EV Data 2023.csv', 'r') as f:
+    with open(ct.ev_global_data_csvpath_and_file, 'r') as f:
         reader = csv.reader(f)
         next(reader) # skip the header
         for row in reader:
@@ -106,11 +132,13 @@ totalEVStock_Percent = '''Select Year,
 
 
 try:
-    dbConnection = psycopg2.connect(user = "dap",
-    password = "dap",
-    host = "192.168.56.30",
-    port = "5432",
-    database = "climate")
+    dbConnection = psycopg2.connect(
+        user = ct.psql_user,
+        password = ct.psql_password,
+        host = ct.psql_host,
+        port = ct.psql_port,
+        database = ct.psql_database)
+
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     dbCursor.execute(totalEVStock_Cars)
@@ -317,11 +345,12 @@ readActualAndForecastString = 'select * from EU_CARS_ACTUAL_AND_FORECAST;'
 
 try :
     dbConnection = psycopg2.connect(
-        user = "dap",
-        password = "dap",
-        host = "192.168.56.30",
-        port = "5432",
-        database = "climate")
+        user = ct.psql_user,
+        password = ct.psql_password,
+        host = ct.psql_host,
+        port = ct.psql_port,
+        database = ct.psql_database)
+
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     #dbCursor.execute("drop table  if exist EU_CARS_ACTUAL_AND_FORECAST;")
@@ -337,11 +366,12 @@ finally:
 
 try:
     dbConnection = psycopg2.connect(
-                            user = "dap",
-                            password = "dap",
-                            host = "192.168.56.30",
-                            port = "5432",
-                            database = "climate")
+        user = ct.psql_user,
+        password = ct.psql_password,
+        host = ct.psql_host,
+        port = ct.psql_port,
+        database = ct.psql_database)
+
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     insertStringActualAndForecast = "INSERT INTO EU_CARS_ACTUAL_AND_FORECAST VALUES ({},{},{},{})"
@@ -363,11 +393,12 @@ print('Successfully inserted data into table EU_CARS_ACTUAL_AND_FORECAST')
 
 try:
     dbConnection = psycopg2.connect(
-                            user = "dap",
-                            password = "dap",
-                            host = "192.168.56.30",
-                            port = "5432",
-                            database = "climate")
+        user = ct.psql_user,
+        password = ct.psql_password,
+        host = ct.psql_host,
+        port = ct.psql_port,
+        database = ct.psql_database)
+
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
 

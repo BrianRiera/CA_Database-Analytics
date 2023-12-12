@@ -10,9 +10,13 @@ import matplotlib.pyplot as plt
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from sklearn.metrics import mean_squared_error
 from math import sqrt
+import constants as ct
 
-csvpath = r'UNFCCC_v26.csv'
-jsonpath = r'UNFCCC_v26.json'
+print("Inside eu_ghg_emissions")
+
+
+csvpath = ct.ghg_emissions_csvpath_and_file
+jsonpath = ct.ghg_emissions_csvpath_jsonpath_and_file_output
 
 def convert_csv_into_json(csvpath, jsonpath):
     array4json = []
@@ -59,12 +63,14 @@ readDataGreenHouseCO2 = 'select count(*) from GreenHouse_CO2;'
 
 
 try :
+    print("Inside try")
     dbConnection = psycopg2.connect(
-        user = "dap",
-        password = "dap",
-        host = "192.168.56.30",
-        port = "5432",
-        database = "climate")
+        user = ct.psql_user,
+        password = ct.psql_password,
+        host = ct.psql_host,
+        port = ct.psql_port,
+        database = ct.psql_database)
+
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     dbCursor.execute("drop table IF EXISTS GreenHouse_CO2;")
@@ -83,11 +89,12 @@ print("Successfully created table GreenHouse_CO2")
 
 try:
     dbConnection = psycopg2.connect(
-                            user = "dap",
-                            password = "dap",
-                            host = "192.168.56.30",
-                            port = "5432",
-                            database = "climate")
+        user = ct.psql_user,
+        password = ct.psql_password,
+        host = ct.psql_host,
+        port = ct.psql_port,
+        database = ct.psql_database)
+
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     insertString = "INSERT INTO GreenHouse_CO2 VALUES ('{}'," + "'{}',"*8 + "cast(coalesce(nullif('{}',''),'0') as float),'{}','{}','{}')"
@@ -128,11 +135,13 @@ readCO2Emissions_ALL = '''Select Year,
 
 
 try:
-    dbConnection = psycopg2.connect(user = "dap",
-    password = "dap",
-    host = "192.168.56.30",
-    port = "5432",
-    database = "climate")
+    dbConnection = psycopg2.connect(
+        user = ct.psql_user,
+        password = ct.psql_password,
+        host = ct.psql_host,
+        port = ct.psql_port,
+        database = ct.psql_database)
+
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     dbCursor.execute(readCO2Emissions_cars)
@@ -193,11 +202,12 @@ readEmissionsActualAndForecastString = '''select * from EU_CARS_ACTUAL_AND_FOREC
 
 try :
     dbConnection = psycopg2.connect(
-        user = "dap",
-        password = "dap",
-        host = "192.168.56.30",
-        port = "5432",
-        database = "climate")
+        user=ct.psql_user,
+        password=ct.psql_password,
+        host=ct.psql_host,
+        port=ct.psql_port,
+        database=ct.psql_database)
+
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     dbCursor.execute(readEmissionsActualAndForecastString)
@@ -298,11 +308,12 @@ readEmissionsActualAndForecastString = 'select * from EMISSIONS_CARS_ACTUAL_AND_
 
 try:
     dbConnection = psycopg2.connect(
-        user="dap",
-        password="dap",
-        host="192.168.56.30",
-        port="5432",
-        database="climate")
+        user=ct.psql_user,
+        password=ct.psql_password,
+        host=ct.psql_host,
+        port=ct.psql_port,
+        database=ct.psql_database)
+
     dbConnection.set_isolation_level(0)  # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     dbCursor.execute("drop table  IF EXISTS EMISSIONS_CARS_ACTUAL_AND_FORECAST;")
@@ -318,11 +329,12 @@ finally:
 
 try:
     dbConnection = psycopg2.connect(
-        user="dap",
-        password="dap",
-        host="192.168.56.30",
-        port="5432",
-        database="climate")
+        user=ct.psql_user,
+        password=ct.psql_password,
+        host=ct.psql_host,
+        port=ct.psql_port,
+        database=ct.psql_database)
+
     dbConnection.set_isolation_level(0)  # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     insertStringEmissionsActualAndForecast = "INSERT INTO EMISSIONS_CARS_ACTUAL_AND_FORECAST VALUES ({},{},{})"
@@ -351,11 +363,12 @@ print('Successfully inserted data into table EMISSIONS_CARS_ACTUAL_AND_FORECAST'
 
 try:
     dbConnection = psycopg2.connect(
-        user="dap",
-        password="dap",
-        host="192.168.56.30",
-        port="5432",
-        database="climate")
+        user=ct.psql_user,
+        password=ct.psql_password,
+        host=ct.psql_host,
+        port=ct.psql_port,
+        database=ct.psql_database)
+
     dbConnection.set_isolation_level(0)  # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
 

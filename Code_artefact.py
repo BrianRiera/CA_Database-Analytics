@@ -13,11 +13,10 @@ from sqlalchemy import create_engine
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-import psycopg2
-
+import constants as ct
 
 # In[99]:
-
+print("Inside Code_artifact")
 
 # Commit history is in separate ipynb files 
 
@@ -32,13 +31,15 @@ import psycopg2
 
 # In[159]:
 
+postgresql_connection_details = "postgresql://" + ct.psql_user + ":" + ct.psql_password + "@" + ct.psql_host + ":" + ct.psql_port + "/" + ct.psql_database
 
-co2_client = pymongo.MongoClient('192.168.56.30', 27017)
+
+co2_client = pymongo.MongoClient(ct.mongo_host, ct.mongo_port)
 co2_db = co2_client.climate
 co2_collection = co2_db.co2_emissions_collection
 
 # Read XML as binary data
-with open('co2_emissions.xml', 'rb') as co2_xml_file:
+with open(ct.co2_emissions_csvpath_and_file, 'rb') as co2_xml_file:
     co2_xml_data = co2_xml_file.read()
 
 # Insert into MongoDB
@@ -164,7 +165,7 @@ co2_output.reset_index()
 
 # Am going to use this table for merging with other tables due to table structure
 try:
-    co2_engine = create_engine('postgresql://dap:dap@192.168.56.30:5432/climate')
+    co2_engine = create_engine(postgresql_connection_details)
 
     co2_output.to_sql('co2_emissions_output', co2_engine, index=False, if_exists='replace')
 
@@ -201,7 +202,7 @@ co2_df[1990] = co2_df[1990].combine_first(co2_df[1991])
 
 # Upload to postgres
 try:
-    co2_engine = create_engine('postgresql://dap:dap@192.168.56.30:5432/climate')
+    co2_engine = create_engine(postgresql_connection_details)
 
     co2_df.to_sql('co2_emissions', co2_engine, index=False, if_exists='replace')
 
@@ -309,12 +310,12 @@ plt.show()
 
 
 # Connecting to MongoDB
-client = pymongo.MongoClient('192.168.56.30', 27017)
+client = pymongo.MongoClient(ct.mongo_host, ct.mongo_port)
 air_db = client.climate
 air_collection = air_db.air_pollution_collection_1965_2019
 
 # Reading in the xml file as binary 
-with open('air_pollution_1965_2019.xml', 'rb') as air_xml_file:
+with open(ct.air_pollution_csvpath_and_file, 'rb') as air_xml_file:
     air_xml_data = air_xml_file.read()
 
 # Inserting into MongoDB
@@ -458,7 +459,7 @@ for row in rows:
 
 tree = ET.ElementTree(root)
 # Writes the XML data to file, 'wb' writing in binary mode, data written without modification, incase binary data encoded characters (n)
-with open('air_pollution.xml', "wb") as xml_f:
+with open(ct.air_pollution_past_2019_csvpath_and_file, "wb") as xml_f:
     tree.write(xml_f, xml_declaration=True)
 
 
@@ -466,12 +467,12 @@ with open('air_pollution.xml', "wb") as xml_f:
 
 
 # Connect to MongoDB
-client = pymongo.MongoClient('192.168.56.30', 27017)
+client = pymongo.MongoClient(ct.mongo_host, ct.mongo_port)
 db = client.climate
 collection = db.air_pollution_collection
 
 # Read in xml in binary mode
-with open('air_pollution.xml', 'rb') as xml_f:
+with open(ct.air_pollution_past_2019_csvpath_and_file, 'rb') as xml_f:
     # Store binary xml in a dictionary 
     xml_data = xml_f.read()
     document = {'air_pollution': xml_data}
@@ -582,7 +583,7 @@ else:
 
 # Upload to postgres
 try:
-    engine = create_engine('postgresql://dap:dap@192.168.56.30:5432/climate')
+    engine = create_engine(postgresql_connection_details)
 
     air_poll_df.to_sql('air_pollution', engine, index=False, if_exists='replace')
 
@@ -726,7 +727,7 @@ plt.show()
 
 
 # Creating Output table for EU countries
-EV_df = pd.read_csv("IEA Global EV Data 2023.csv")
+EV_df = pd.read_csv(ct.ev_global_data_csvpath_and_file)
 ev_eu_df = EV_df.loc[(EV_df['region'] == 'EU27') & (EV_df['category'] == 'Historical') & (EV_df['parameter'] == 'EV sales') & (EV_df['mode'] == 'Cars') ].groupby(["year"]).agg(EVSales=('value', 'sum'))
 
 
@@ -763,7 +764,7 @@ output_df = pd.merge(output_df, co2_eu_df, on='Year', how='left')
 # In[225]:
 
 
-co2_car_df = pd.read_csv('UNFCCC_v26.csv')
+co2_car_df = pd.read_csv(ct.ghg_emissions_csvpath_and_file)
 
 
 # In[226]:
@@ -809,7 +810,7 @@ print(correlation_matrix)
 # In[231]:
 
 
-lm_eu_df = pd.read_csv("IEA Global EV Data 2023.csv")
+lm_eu_df = pd.read_csv(ct.ev_global_data_csvpath_and_file)
 lm_eu_df = lm_eu_df.loc[(lm_eu_df['region'].isin(eu_27_list)) & (lm_eu_df['category'] == 'Historical') & (lm_eu_df['parameter'] == 'EV sales') & (lm_eu_df['mode'] == 'Cars')]
 
 
@@ -878,7 +879,7 @@ lm_output_df = pd.merge(lm_output_df, lm_co2_eu_df, on= ['Country or Area', 'Yea
 # In[241]:
 
 
-lm_co2_car_df = pd.read_csv('UNFCCC_v26.csv')
+lm_co2_car_df = pd.read_csv(ct.ghg_emissions_csvpath_and_file)
 
 
 # In[242]:
