@@ -955,3 +955,5 @@ print(anova_table)
 
 print(results.summary())
 
+
+print()
