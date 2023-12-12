@@ -67,9 +67,9 @@ try :
         database = "climate")
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
-    #dbCursor.execute("drop table IF EXISTS GreenHouse_CO2;")
-    #dbCursor.execute(createStringGreenHouseCO2)
-    #dbCursor.execute(readDataGreenHouseCO2)
+    dbCursor.execute("drop table IF EXISTS GreenHouse_CO2;")
+    dbCursor.execute(createStringGreenHouseCO2)
+    dbCursor.execute(readDataGreenHouseCO2)
     print (dbCursor.fetchall())
     dbCursor.close()
 except (Exception , psycopg2.Error) as dbError :
@@ -98,7 +98,7 @@ try:
         for row in reader:
             #print(insertString.format(*row))
             if  row[3] == 'All greenhouse gases - (CO2 equivalent)' and (row[5] == '1.A.3.b.i - Cars'  or row[5] == 'Total emissions (UNFCCC)') and row[8] != '1985-1987'  :
-                #dbCursor.execute(insertString.format(*row))
+                dbCursor.execute(insertString.format(*row))
                 i += 1
     dbCursor.close()
 except (Exception , psycopg2.Error) as dbError :
@@ -285,14 +285,6 @@ rmse = sqrt(mse)
 
 print('Plotting "Exponential Smoothing Forecasting - EU27 Countries Greenhouse gases - (For Cars Only)" is complete')
 
-
-
-print('*******df_combined**********')
-print(df_combined)
-print('*******forecast**********')
-print(forecast)
-print('*******forecast_less_ev_percentage**********')
-print(forecast_less_ev_percentage)
 
 createEmissionsActualAndForecastString = """
 CREATE TABLE IF NOT EXISTS EMISSIONS_CARS_ACTUAL_AND_FORECAST (
