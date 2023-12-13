@@ -64,13 +64,7 @@ readDataGreenHouseCO2 = 'select count(*) from GreenHouse_CO2;'
 
 try :
     print("Inside try")
-    dbConnection = psycopg2.connect(
-        user = ct.psql_user,
-        password = ct.psql_password,
-        host = ct.psql_host,
-        port = ct.psql_port,
-        database = ct.psql_database)
-
+    dbConnection = ct.getPostgresDBConnection(ct.psql_database)
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     dbCursor.execute("drop table IF EXISTS GreenHouse_CO2;")
@@ -88,13 +82,7 @@ print("Successfully created table GreenHouse_CO2")
 
 
 try:
-    dbConnection = psycopg2.connect(
-        user = ct.psql_user,
-        password = ct.psql_password,
-        host = ct.psql_host,
-        port = ct.psql_port,
-        database = ct.psql_database)
-
+    dbConnection = ct.getPostgresDBConnection(ct.psql_database)
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     insertString = "INSERT INTO GreenHouse_CO2 VALUES ('{}'," + "'{}',"*8 + "cast(coalesce(nullif('{}',''),'0') as float),'{}','{}','{}')"
@@ -135,13 +123,7 @@ readCO2Emissions_ALL = '''Select Year,
 
 
 try:
-    dbConnection = psycopg2.connect(
-        user = ct.psql_user,
-        password = ct.psql_password,
-        host = ct.psql_host,
-        port = ct.psql_port,
-        database = ct.psql_database)
-
+    dbConnection = ct.getPostgresDBConnection(ct.psql_database)
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     dbCursor.execute(readCO2Emissions_cars)
@@ -201,13 +183,7 @@ readEmissionsActualAndForecastString = '''select * from EU_CARS_ACTUAL_AND_FOREC
 
 
 try :
-    dbConnection = psycopg2.connect(
-        user=ct.psql_user,
-        password=ct.psql_password,
-        host=ct.psql_host,
-        port=ct.psql_port,
-        database=ct.psql_database)
-
+    dbConnection = ct.getPostgresDBConnection(ct.psql_database)
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     dbCursor.execute(readEmissionsActualAndForecastString)
@@ -307,13 +283,7 @@ AllEmission	numeric
 readEmissionsActualAndForecastString = 'select * from EMISSIONS_CARS_ACTUAL_AND_FORECAST;'
 
 try:
-    dbConnection = psycopg2.connect(
-        user=ct.psql_user,
-        password=ct.psql_password,
-        host=ct.psql_host,
-        port=ct.psql_port,
-        database=ct.psql_database)
-
+    dbConnection = ct.getPostgresDBConnection(ct.psql_database)
     dbConnection.set_isolation_level(0)  # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     dbCursor.execute("drop table  IF EXISTS EMISSIONS_CARS_ACTUAL_AND_FORECAST;")
@@ -328,13 +298,7 @@ finally:
         dbConnection.close()
 
 try:
-    dbConnection = psycopg2.connect(
-        user=ct.psql_user,
-        password=ct.psql_password,
-        host=ct.psql_host,
-        port=ct.psql_port,
-        database=ct.psql_database)
-
+    dbConnection = ct.getPostgresDBConnection(ct.psql_database)
     dbConnection.set_isolation_level(0)  # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     insertStringEmissionsActualAndForecast = "INSERT INTO EMISSIONS_CARS_ACTUAL_AND_FORECAST VALUES ({},{},{})"
@@ -362,13 +326,7 @@ finally:
 print('Successfully inserted data into table EMISSIONS_CARS_ACTUAL_AND_FORECAST')
 
 try:
-    dbConnection = psycopg2.connect(
-        user=ct.psql_user,
-        password=ct.psql_password,
-        host=ct.psql_host,
-        port=ct.psql_port,
-        database=ct.psql_database)
-
+    dbConnection = ct.getPostgresDBConnection(ct.psql_database)
     dbConnection.set_isolation_level(0)  # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
 

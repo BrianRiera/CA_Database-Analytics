@@ -28,9 +28,10 @@ def createDB(database):
         if (dbConnection):
             dbConnection.close()
 
+print("Inside ev_sales")
+
 createDB(ct.psql_database)
 
-print("Inside ev_sales")
 
 df = pd.read_csv(ct.ev_global_data_csvpath_and_file)
 
@@ -69,12 +70,7 @@ value	numeric
 readGlobalEVData = 'select count(*) from GLOBAL_EV_DATA;'
 
 try :
-    dbConnection = psycopg2.connect(
-        user = ct.psql_user,
-        password = ct.psql_password,
-        host = ct.psql_host,
-        port = ct.psql_port,
-        database = ct.psql_database)
+    dbConnection = ct.getPostgresDBConnection(ct.psql_database)
 
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
@@ -91,13 +87,7 @@ finally:
 print('Successfully created table GLOBAL_EV_DATA')
 
 try:
-    dbConnection = psycopg2.connect(
-        user = ct.psql_user,
-        password = ct.psql_password,
-        host = ct.psql_host,
-        port = ct.psql_port,
-        database = ct.psql_database)
-
+    dbConnection = ct.getPostgresDBConnection(ct.psql_database)
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     insertString = "INSERT INTO GLOBAL_EV_DATA VALUES ('{}'," + "'{}',"*6 + "{})"
@@ -132,13 +122,7 @@ totalEVStock_Percent = '''Select Year,
 
 
 try:
-    dbConnection = psycopg2.connect(
-        user = ct.psql_user,
-        password = ct.psql_password,
-        host = ct.psql_host,
-        port = ct.psql_port,
-        database = ct.psql_database)
-
+    dbConnection = ct.getPostgresDBConnection(ct.psql_database)
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     dbCursor.execute(totalEVStock_Cars)
@@ -344,13 +328,7 @@ readActualAndForecastString = 'select * from EU_CARS_ACTUAL_AND_FORECAST;'
 
 
 try :
-    dbConnection = psycopg2.connect(
-        user = ct.psql_user,
-        password = ct.psql_password,
-        host = ct.psql_host,
-        port = ct.psql_port,
-        database = ct.psql_database)
-
+    dbConnection = ct.getPostgresDBConnection(ct.psql_database)
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     #dbCursor.execute("drop table  if exist EU_CARS_ACTUAL_AND_FORECAST;")
@@ -365,13 +343,7 @@ finally:
         dbConnection.close()
 
 try:
-    dbConnection = psycopg2.connect(
-        user = ct.psql_user,
-        password = ct.psql_password,
-        host = ct.psql_host,
-        port = ct.psql_port,
-        database = ct.psql_database)
-
+    dbConnection = ct.getPostgresDBConnection(ct.psql_database)
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
     insertStringActualAndForecast = "INSERT INTO EU_CARS_ACTUAL_AND_FORECAST VALUES ({},{},{},{})"
@@ -392,13 +364,7 @@ finally:
 print('Successfully inserted data into table EU_CARS_ACTUAL_AND_FORECAST')
 
 try:
-    dbConnection = psycopg2.connect(
-        user = ct.psql_user,
-        password = ct.psql_password,
-        host = ct.psql_host,
-        port = ct.psql_port,
-        database = ct.psql_database)
-
+    dbConnection = ct.getPostgresDBConnection(ct.psql_database)
     dbConnection.set_isolation_level(0) # AUTOCOMMIT
     dbCursor = dbConnection.cursor()
 
