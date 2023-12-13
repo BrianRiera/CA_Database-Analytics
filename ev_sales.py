@@ -295,8 +295,6 @@ print('Plotting of "Time Series Forecasting - EV vs All Types of Cars" is comple
 # In[433]:
 
 
-import pandas as pd
-
 df_final = pd.DataFrame(forecast_index, columns=['Year'])
 df_final['EVCars'] = forecast_values.values
 df_final['AllCars_Total'] = forecast_values_all_cars.values

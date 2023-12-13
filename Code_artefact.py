@@ -14,6 +14,8 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import constants as ct
+import statsmodels.formula.api as smf
+from statsmodels.stats.anova import anova_lm
 
 # In[99]:
 print("Inside Code_artifact")
@@ -953,8 +955,6 @@ lm_output_df.rename(columns={'value': 'EVSales'}, inplace=True)
 
 
 # Change dependent Variable?
-import statsmodels.formula.api as smf
-from statsmodels.stats.anova import anova_lm
 
 # LM formula
 formula = 'EVSales ~ Air_Pollution + Total_co2_emissions_MTPC + emissions'
