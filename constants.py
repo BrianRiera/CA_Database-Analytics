@@ -1,5 +1,6 @@
 import psycopg2
 
+
 print("Inside Constants")
 
 ev_global_data_csvpath_and_file = "IEA Global EV Data 2023.csv"
@@ -23,11 +24,11 @@ psql_database = "climate"
 psql_masterDb = "postgres"
 
 
-#mongoDB details
-mongo_host = 'localhost'
+#mongoDB 
+mongo_host = '192.168.56.30'
 mongo_port = 27017
 
-
+# 
 def getPostgresDBConnection(databasename):
     return psycopg2.connect(
         user = psql_user,

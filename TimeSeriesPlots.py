@@ -68,17 +68,17 @@ def read_table(table_name, connection_settings):
 
 ###Filter applied to year
 
-df = pd.read_csv('df_melted_all.txt', sep='\t')
-df['Year'] = pd.to_datetime(df['Year'], format='%Y')
-df = df.set_index('Year')
-df = df[(df.index >= '2010-01-01') & (df.index <= '2020-12-31')] ###filter by year
-fig, ax = plt.subplots(figsize=(10, 6))
-print(df)
-df.groupby('Country or Area')['CO2 Emissions'].plot(legend=True, ax=ax)
-ax.set_xlabel('Year')
-ax.set_ylabel('CO2 Emissions')
-ax.set_title('Time Series Graph of CO2 Emissions by Country')
-plt.show()
+# df = pd.read_csv('df_melted_all.txt', sep='\t')
+# df['Year'] = pd.to_datetime(df['Year'], format='%Y')
+# df = df.set_index('Year')
+# df = df[(df.index >= '2010-01-01') & (df.index <= '2020-12-31')] ###filter by year
+# fig, ax = plt.subplots(figsize=(10, 6))
+# print(df)
+# df.groupby('Country or Area')['CO2 Emissions'].plot(legend=True, ax=ax)
+# ax.set_xlabel('Year')
+# ax.set_ylabel('CO2 Emissions')
+# ax.set_title('Time Series Graph of CO2 Emissions by Country')
+# plt.show()
 
 
 # In[8]:
