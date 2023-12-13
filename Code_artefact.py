@@ -699,10 +699,18 @@ plt.show()
 
 # In[218]:
 
+#Old code
+#air_arima_df = air_eu_df.melt(id_vars='Country or Area', var_name='Year', value_name='Air_Pollution')
+#air_arima_df = air_arima_df.groupby('Year').mean().reset_index()
+melted_df = air_eu_df.melt(id_vars='Country or Area', var_name='Year', value_name='Air_Pollution')
 
-air_arima_df = air_eu_df.melt(id_vars='Country or Area', var_name='Year', value_name='Air_Pollution')
+air_arima_df = melted_df
+air_arima_df.columns = air_arima_df.columns.str.strip()
+print(air_arima_df.columns)
+air_arima_df = air_arima_df.drop(columns='Country or Area')
 air_arima_df = air_arima_df.groupby('Year').mean().reset_index()
 
+print(air_arima_df)
 
 # In[219]:
 
@@ -749,7 +757,16 @@ co2_eu_df = co2_eu_df.reset_index(drop=True)
 # In[223]:
 
 
-co2_eu_df = co2_eu_df.melt(id_vars='Country or Area', var_name='Year', value_name='Total_co2_emissions_MTPC')
+
+#old code
+#co2_eu_df = co2_eu_df.melt(id_vars='Country or Area', var_name='Year', value_name='Total_co2_emissions_MTPC')
+#co2_eu_df = co2_eu_df.groupby('Year').mean().reset_index()
+print(co2_eu_df)
+co2_eu_melted_df = co2_eu_df.melt(id_vars='Country or Area', var_name='Year', value_name='Total_co2_emissions_MTPC')
+co2_eu_df = co2_eu_melted_df
+co2_eu_df.columns = co2_eu_df.columns.str.strip()
+print(co2_eu_df.columns)
+co2_eu_df = co2_eu_df.drop(columns='Country or Area')
 co2_eu_df = co2_eu_df.groupby('Year').mean().reset_index()
 
 
