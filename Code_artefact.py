@@ -952,7 +952,7 @@ lm_output_df.rename(columns={'value': 'EVSales'}, inplace=True)
 # Change dependent Variable?
 
 # LM formula
-formula = 'EVSales ~ Air_Pollution + Total_co2_emissions_MTPC + emissions'
+formula = 'emissions ~ Air_Pollution + Total_co2_emissions_MTPC + EVSales'
 model = smf.ols(formula=formula, data=lm_output_df)
 
 results = model.fit()
