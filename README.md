@@ -15,10 +15,10 @@ Update constants.py with csv, xml file names, and paths if they are not in the r
 
 
 
-** If you choose to run the files separately the order is listed below **
-(1) Constants
-(2) ev_sales
-(3) eu_ghg_emissions
-(4) co2_emissions (combined with air_pollution as Code_artefact)
-(5) air_pollution (combined with co2_emissions as Code_artefact)
-(6) TimeSeriesPlots
+**If you choose to run the files separately the order is listed as:**
+**(1)** Constants
+**(2)** ev_sales
+**(3)** eu_ghg_emissions
+**(4)** co2_emissions (combined with air_pollution as Code_artefact)
+**(5)** air_pollution (combined with co2_emissions as Code_artefact)
+**(6)** TimeSeriesPlots
