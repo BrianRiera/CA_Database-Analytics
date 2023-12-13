@@ -10,5 +10,5 @@ pandas, matplotlib, psycopg2, csv, numpy, statsmodels, json, sklearn, math, bs4,
 **Databases Connection details**
 Update constants.py with MongoDb and PostgreSQL DB details
 
-**Dataset Files names and paths**
+**Dataset File names and paths**
 Update constants.py with csv, xml file names and paths if they are not in root folder 
