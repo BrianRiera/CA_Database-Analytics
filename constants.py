@@ -1,3 +1,4 @@
+import psycopg2
 
 print("Inside Constants")
 
@@ -23,5 +24,14 @@ psql_masterDb = "postgres"
 
 
 #mongoDB details
-mongo_host = '192.168.56.30'
+mongo_host = 'localhost'
 mongo_port = 27017
+
+
+def getPostgresDBConnection(databasename):
+    return psycopg2.connect(
+        user = psql_user,
+        password = psql_password,
+        host = psql_host,
+        port = psql_port,
+        database = databasename)
