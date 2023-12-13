@@ -5,22 +5,7 @@ Main.py is the main to file to be run.
 Prior to executing Main.py here are prerequisites
 
 **Install the following packages**
-import pandas as pd
-import matplotlib.pyplot as plt
-import psycopg2
-import csv
-import numpy as np
-from statsmodels.tsa.arima.model import ARIMA
-import json
-from statsmodels.tsa.holtwinters import ExponentialSmoothing
-from sklearn.metrics import mean_squared_error
-from math import sqrt
-from bs4 import BeautifulSoup
-import requests
-import xml.etree.ElementTree as ET
-import pymongo
-from sqlalchemy import create_engine
-import seaborn as sns
+pandas, matplotlib, psycopg2, csv, numpy, statsmodels, json, sklearn, math, bs4, requests, xml, pymongo, sqlalchemy, seaborn
 
 **Databases Connection details**
 Update constants.py with MongoDb and PostgreSQL DB details
